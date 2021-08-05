@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/main_graph"
+    app:startDestination="@id/listFragment">
+
+    <fragment
+        android:id="@+id/listFragment"
+        android:name="com.scz.cointracker.presentation.ui.coinlist.CoinFeedFragment"
+        android:label="ListFragment">
+        <action
+            android:id="@+id/viewDetail"
+            app:destination="@id/detailFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/detailFragment"
+        android:name="com.scz.cointracker.presentation.ui.coin.CoinDetailFragment"
+        android:label="DetailFragment" />
+</navigation>

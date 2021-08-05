@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">CoinTracker</string>
+    <string name="feed_title1">Bought Price</string>
+    <string name="feed_title2">Selling Price</string>
+    <string name="feed_title3">Profit-Loss</string>
+    <string name="feed_title4">Low24h</string>
+    <string name="feed_title5">High24h</string>
+    <string name="feed_title6">%24h</string>
+</resources>
