@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.*
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,6 +48,9 @@ class CoinFeedFragment : Fragment() {
                 val loading = viewModel.loading.value
                 val coroutineScope = rememberCoroutineScope()
                 val scaffoldState = rememberScaffoldState()
+                val itemListState = remember {
+                    mutableStateOf(coinsOnScreen)
+                }
                 Column {
                     Scaffold(
                         topBar = {
@@ -93,12 +98,38 @@ class CoinFeedFragment : Fragment() {
                             ExpandInFadeOutAnimatedContent(visible = !loading) {
                                 SwipeRefresh(state = rememberSwipeRefreshState(false),
                                     onRefresh = { viewModel.refresh() }) {
-                                    LazyColumn {
+                                    if (viewModel.category.value == CoinCategory.MARKET) LazyColumn {
                                         itemsIndexed(items = coinsOnScreen) { _, coin ->
                                             CoinCard(
                                                 coin = coin,
                                                 onClick = {},
                                                 category = viewModel.category.value
+                                            )
+                                        }
+                                    }
+                                    else LazyColumn {
+                                        itemsIndexed(
+                                            items = coinsOnScreen
+                                        ) { _, coin ->
+                                            SwipeDismissItem(
+                                                content = {
+                                                    Column(
+                                                        modifier = Modifier.fillMaxWidth()
+                                                    ) {
+                                                        CoinCard(
+                                                            coin = coin,
+                                                            onClick = {},
+                                                            category = viewModel.category.value
+                                                        )
+                                                    }
+                                                },
+                                                onDismissed = { isDismissed ->
+                                                    if (isDismissed) {
+                                                        itemListState.value =
+                                                            itemListState.value.filter { it != coin }
+                                                        viewModel.deleteCoinFromPortfolio(coin)
+                                                    }
+                                                }
                                             )
                                         }
                                     }

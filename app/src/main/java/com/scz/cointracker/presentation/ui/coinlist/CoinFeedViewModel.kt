@@ -51,10 +51,13 @@ class CoinFeedViewModel @Inject constructor(
             portfolioIds = repository.getCoins()
             portfolioIds.forEach { portfolioCoin ->
                 coinsFromService.value.find { x -> x.id.lowercase() == portfolioCoin.ids.lowercase() }
-                    ?.let {
-                        it.boughtPrice = portfolioCoin.boughtPrice
-                        it.boughtUnit = portfolioCoin.boughtUnit
-                        portfolioList.add(it)
+                    ?.let { coin ->
+                        coin.boughtPrice = portfolioCoin.boughtPrice
+                        coin.boughtUnit = portfolioCoin.boughtUnit
+                        portfolioCoin.id?.let { entityId ->
+                            coin.entityId = entityId
+                        }
+                        portfolioList.add(coin)
                     }
             }
             val finalList = calcualteProfit(portfolioList)
@@ -64,7 +67,7 @@ class CoinFeedViewModel @Inject constructor(
         loading.value = false
     }
 
-    fun calcualteProfit(list: List<Coin>): List<Coin> {
+    private fun calcualteProfit(list: List<Coin>): List<Coin> {
         list.forEach {
             it.profit = it.currentPrice.minus(it.boughtPrice).times(it.boughtUnit)
         }
@@ -75,7 +78,15 @@ class CoinFeedViewModel @Inject constructor(
         viewModelScope.launch {
             loading.value = true
             repository.insertCoin(coin)
+            category.value = CoinCategory.PORTFOLIO
+            getPortfolio()
             loading.value = false
+        }
+    }
+
+    fun deleteCoinFromPortfolio(coin: Coin) {
+        viewModelScope.launch {
+            repository.deleteCoin(coin.entityId)
         }
     }
 

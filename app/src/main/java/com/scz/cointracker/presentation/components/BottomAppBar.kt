@@ -23,6 +23,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.dp
 import com.scz.cointracker.domain.model.Coin
+import com.scz.cointracker.extensions.formatDouble
 import com.scz.cointracker.room.model.CoinEntity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -148,8 +149,8 @@ fun BottomDrawer(
                         onAdd(
                             CoinEntity(
                                 items[selectedIndex],
-                                boughtPrice.toDouble(),
-                                boughtUnit.toDouble()
+                                boughtPrice.formatDouble(),
+                                boughtUnit.formatDouble()
                             )
                         )
                         selectedIndex = -1
