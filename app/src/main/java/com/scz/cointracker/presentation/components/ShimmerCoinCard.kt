@@ -44,7 +44,7 @@ fun ShimmerCoinCard(
 }
 
 @Composable
-fun LoadingCoinShimmer(imageHeight: Dp, padding: Dp = 16.dp) {
+fun LoadingCoinShimmer(imageHeight: Dp, padding: Dp = 8.dp) {
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
         val cardWidthPx = with(LocalDensity.current) {
             (maxWidth - (padding * 2)).toPx()
@@ -60,9 +60,9 @@ fun LoadingCoinShimmer(imageHeight: Dp, padding: Dp = 16.dp) {
             targetValue = (cardWidthPx + gradientWidth),
             animationSpec = infiniteRepeatable(
                 animation = tween(
-                    durationMillis = 1300,
+                    durationMillis = 750,
                     easing = LinearEasing,
-                    delayMillis = 300
+                    delayMillis = 200
                 ),
                 repeatMode = RepeatMode.Restart
             )
@@ -72,9 +72,9 @@ fun LoadingCoinShimmer(imageHeight: Dp, padding: Dp = 16.dp) {
             targetValue = (cardHeightPx + gradientWidth),
             animationSpec = infiniteRepeatable(
                 animation = tween(
-                    durationMillis = 1300,
+                    durationMillis = 750,
                     easing = LinearEasing,
-                    delayMillis = 300
+                    delayMillis = 200
                 ),
                 repeatMode = RepeatMode.Restart
             )

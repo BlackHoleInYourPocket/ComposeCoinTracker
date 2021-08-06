@@ -5,7 +5,7 @@ import com.scz.cointracker.domain.util.Resource
 import com.scz.cointracker.network.CoinService
 import com.scz.cointracker.network.model.CoinDtoMapper
 import com.scz.cointracker.room.CoinDao
-import com.scz.cointracker.room.CoinEntity
+import com.scz.cointracker.room.model.CoinEntity
 
 class CoinRepository_Impl(
     private val dao: CoinDao,

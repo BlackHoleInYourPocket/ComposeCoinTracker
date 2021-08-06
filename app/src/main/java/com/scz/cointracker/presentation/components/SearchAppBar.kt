@@ -74,7 +74,7 @@ fun SearchAppBar(
                         backgroundColor = MaterialTheme.colors.surface
                     ),
                     modifier = Modifier
-                        .fillMaxWidth(0.9f),
+                        .fillMaxWidth(),
                     trailingIcon = {
                         Icon(
                             Icons.Filled.Cancel,

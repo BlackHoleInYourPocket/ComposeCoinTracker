@@ -18,12 +18,14 @@ import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.dp
 import com.scz.cointracker.R
 import com.scz.cointracker.domain.model.Coin
+import com.scz.cointracker.presentation.ui.coinlist.CoinCategory
 import com.scz.cointracker.util.loadPicture
 
 @Composable
 fun CoinCard(
     coin: Coin,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    category: CoinCategory
 ) {
     Card(
         shape = MaterialTheme.shapes.small,
@@ -66,8 +68,10 @@ fun CoinCard(
                         .requiredHeight(50.dp)
                 ) {
                     TwoLineText(
-                        title = stringResource(id = R.string.feed_title1),
-                        value = "Bought Price",
+                        title = if (category.value == CoinCategory.MARKET.value) stringResource(id = R.string.feed_title7)
+                        else stringResource(id = R.string.feed_title1),
+                        value = if (category.value == CoinCategory.MARKET.value) coin.marketCap.toString()
+                        else coin.boughtPrice.toString(),
                         widthFraction = 0.33f
                     )
                     TwoLineText(
@@ -76,8 +80,10 @@ fun CoinCard(
                         widthFraction = 0.33f
                     )
                     TwoLineText(
-                        title = stringResource(id = R.string.feed_title3),
-                        value = "Profit-Loss"
+                        title = if (category.value == CoinCategory.MARKET.value) stringResource(id = R.string.feed_title8)
+                        else stringResource(id = R.string.feed_title3),
+                        value = if (category.value == CoinCategory.MARKET.value) coin.marketCapRank.toString()
+                        else coin.profit.toString()
                     )
                 }
 

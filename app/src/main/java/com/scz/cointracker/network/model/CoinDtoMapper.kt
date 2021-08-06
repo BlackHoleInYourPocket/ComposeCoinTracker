@@ -14,7 +14,8 @@ class CoinDtoMapper : DtoMapper<CoinDto, Coin> {
             marketCap = domainModel.marketCap,
             high24h = domainModel.high24h,
             low24h = domainModel.low24h,
-            priceChangePercentage24h = domainModel.priceChangePercentage24h
+            priceChangePercentage24h = domainModel.priceChangePercentage24h,
+            marketCapRank = domainModel.marketCapRank
         )
     }
 
@@ -28,7 +29,8 @@ class CoinDtoMapper : DtoMapper<CoinDto, Coin> {
             marketCap = model.marketCap,
             high24h = model.high24h,
             low24h = model.low24h,
-            priceChangePercentage24h = model.priceChangePercentage24h
+            priceChangePercentage24h = model.priceChangePercentage24h,
+            marketCapRank = model.marketCapRank
         )
     }
 

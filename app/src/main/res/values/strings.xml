@@ -6,4 +6,6 @@
     <string name="feed_title4">Low24h</string>
     <string name="feed_title5">High24h</string>
     <string name="feed_title6">%24h</string>
+    <string name="feed_title7">Market Cap</string>
+    <string name="feed_title8">Market Cap Rank</string>
 </resources>

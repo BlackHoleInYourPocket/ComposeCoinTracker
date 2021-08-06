@@ -20,5 +20,7 @@ data class CoinDto(
     @SerializedName("low_24h")
     val low24h: Double,
     @SerializedName("price_change_percentage_24h")
-    val priceChangePercentage24h: Double
+    val priceChangePercentage24h: Double,
+    @SerializedName("market_cap_rank")
+    val marketCapRank: Int
 )
