@@ -31,7 +31,6 @@ class CoinFeedViewModel @Inject constructor(
     fun getCoins() {
         viewModelScope.launch {
             loading.value = true
-            delay(1000)
             repository.getCoins("try").data?.let {
                 coins.value = it
                 initialCoins.value = it
@@ -64,9 +63,13 @@ class CoinFeedViewModel @Inject constructor(
         getCoins()
     }
 
+    fun clearQueryText() {
+        query.value = ""
+    }
+
     fun categoryChanged(category: CoinCategory) {
         this.category.value = category
-        query.value = ""
+        clearQueryText()
         when (category) {
             CoinCategory.MARKET -> getCoins()
             CoinCategory.PORTFOLIO -> getPortfolio()

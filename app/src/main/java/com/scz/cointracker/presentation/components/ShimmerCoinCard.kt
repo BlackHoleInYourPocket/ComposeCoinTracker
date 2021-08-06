@@ -40,16 +40,6 @@ fun ShimmerCoinCard(
                     .background(brush)
             )
         }
-        Spacer(modifier = Modifier.height(16.dp))
-        Surface(shape = MaterialTheme.shapes.small) {
-            Spacer(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .requiredHeight(cardHeight / 10)
-                    .fillMaxSize()
-                    .background(brush)
-            )
-        }
     }
 }
 
