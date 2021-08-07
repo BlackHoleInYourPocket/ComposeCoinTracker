@@ -138,6 +138,7 @@ fun BottomDrawer(
             Button(
                 onClick = {
                     if (selectedIndex == -1 || boughtPrice.isEmpty() || boughtUnit.isEmpty()) {
+                        focusManager.clearFocus()
                         coroutineScope.launch {
                             scaffoldState.drawerState.close()
                             scaffoldState.snackbarHostState.showSnackbar(

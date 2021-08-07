@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.compose.animation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.*
 import androidx.compose.runtime.mutableStateOf
@@ -21,6 +22,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import com.scz.cointracker.domain.model.Coin
 import com.scz.cointracker.presentation.components.*
 import com.scz.cointracker.presentation.util.AnimationUtil
 import dagger.hilt.android.AndroidEntryPoint
@@ -108,9 +110,9 @@ class CoinFeedFragment : Fragment() {
                                         }
                                     }
                                     else LazyColumn {
-                                        itemsIndexed(
-                                            items = coinsOnScreen
-                                        ) { _, coin ->
+                                        items(
+                                            coinsOnScreen,
+                                            { listItem: Coin -> listItem.id }) { coin ->
                                             SwipeDismissItem(
                                                 content = {
                                                     Column(

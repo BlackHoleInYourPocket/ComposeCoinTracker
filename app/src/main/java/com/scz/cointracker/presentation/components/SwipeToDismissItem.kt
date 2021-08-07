@@ -62,7 +62,6 @@ fun SwipeDismissItem(
                 SwipeBackground(
                     onDeleteClicked = {
                         hasConfirmedDismissal = true
-
                         coroutineScope.launch {
                             dismissState.dismiss(DismissDirection.StartToEnd)
                         }
@@ -90,7 +89,7 @@ fun SwipeBackground(
             .background(color = Color.Red),
     ) {
         IconButton(onClick = onDeleteClicked) {
-            Icon(Icons.Default.Delete, contentDescription = "Delete")
+            Icon(Icons.Default.Delete, contentDescription = "Delete", tint = Color.White)
         }
     }
 }
