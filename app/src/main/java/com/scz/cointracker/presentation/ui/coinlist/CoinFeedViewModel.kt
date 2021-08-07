@@ -45,6 +45,7 @@ class CoinFeedViewModel @Inject constructor(
 
     fun getPortfolio() {
         loading.value = true
+        coinsOnScreen.value = listOf()
         var portfolioIds: List<CoinEntity>
         val portfolioList = ArrayList<Coin>()
         viewModelScope.launch {
@@ -52,12 +53,27 @@ class CoinFeedViewModel @Inject constructor(
             portfolioIds.forEach { portfolioCoin ->
                 coinsFromService.value.find { x -> x.id.lowercase() == portfolioCoin.ids.lowercase() }
                     ?.let { coin ->
-                        coin.boughtPrice = portfolioCoin.boughtPrice
-                        coin.boughtUnit = portfolioCoin.boughtUnit
                         portfolioCoin.id?.let { entityId ->
                             coin.entityId = entityId
                         }
-                        portfolioList.add(coin)
+                        portfolioList.add(
+                            Coin(
+                                coin.entityId,
+                                coin.id,
+                                coin.symbol,
+                                coin.name,
+                                portfolioCoin.boughtPrice,
+                                portfolioCoin.boughtUnit,
+                                coin.profit,
+                                coin.imageUrl,
+                                coin.currentPrice,
+                                coin.marketCap,
+                                coin.high24h,
+                                coin.low24h,
+                                coin.priceChangePercentage24h,
+                                coin.marketCapRank
+                            )
+                        )
                     }
             }
             val finalList = calcualteProfit(portfolioList)

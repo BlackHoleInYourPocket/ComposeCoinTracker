@@ -109,10 +109,10 @@ class CoinFeedFragment : Fragment() {
                                             )
                                         }
                                     }
-                                    else LazyColumn {
+                                    else if (coinsOnScreen.isNotEmpty()) LazyColumn {
                                         items(
                                             coinsOnScreen,
-                                            { listItem: Coin -> listItem.id }) { coin ->
+                                            { coin: Coin -> coin.entityId }) { coin ->
                                             SwipeDismissItem(
                                                 content = {
                                                     Column(
