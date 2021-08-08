@@ -25,6 +25,8 @@ class CoinFeedViewModel @Inject constructor(
     val query = mutableStateOf("")
     val category = mutableStateOf(CoinCategory.MARKET)
     val loading = mutableStateOf(false)
+    val portfolioCategories: MutableState<List<String>> = mutableStateOf(listOf())
+    val selectedPortfolioCategory = mutableStateOf("")
 
     init {
         getCoins()
@@ -46,11 +48,12 @@ class CoinFeedViewModel @Inject constructor(
     fun getPortfolio() {
         loading.value = true
         coinsOnScreen.value = listOf()
-        var portfolioIds: List<CoinEntity>
+        var portfolio: List<CoinEntity>
         val portfolioList = ArrayList<Coin>()
         viewModelScope.launch {
-            portfolioIds = repository.getCoins()
-            portfolioIds.forEach { portfolioCoin ->
+            portfolio = repository.getCoins()
+            mapPortfolioCategories(portfolio)
+            portfolio.forEach { portfolioCoin ->
                 coinsFromService.value.find { x -> x.id.lowercase() == portfolioCoin.ids.lowercase() }
                     ?.let { coin ->
                         portfolioCoin.id?.let { entityId ->
@@ -71,7 +74,8 @@ class CoinFeedViewModel @Inject constructor(
                                 coin.high24h,
                                 coin.low24h,
                                 coin.priceChangePercentage24h,
-                                coin.marketCapRank
+                                coin.marketCapRank,
+                                portfolioCoin.portfolioCategory
                             )
                         )
                     }
@@ -106,11 +110,46 @@ class CoinFeedViewModel @Inject constructor(
         }
     }
 
+    fun onPortfolioCategoryChanged(category: String) {
+        selectedPortfolioCategory.value = category
+        coinsOnScreen.value =
+            coinsFromPortfolio.value.filter { x -> x.portfolioCategory == category }
+    }
+
+    private fun mapPortfolioCategories(portfolio: List<CoinEntity>) {
+        portfolioCategories.value = portfolio.map { it.portfolioCategory }.distinct()
+    }
+
+    fun getPortfolioCategories(): List<String> {
+        return portfolioCategories.value
+    }
+
+    fun order(orderType: OrderType) {
+        when (orderType) {
+            OrderType.PROFIT -> {
+                if (category.value == CoinCategory.PORTFOLIO) coinsOnScreen.value =
+                    coinsOnScreen.value.sortedByDescending { x -> x.profit }
+            }
+            OrderType.SELLINGPRICE -> coinsOnScreen.value =
+                coinsOnScreen.value.sortedByDescending { x -> x.currentPrice }
+            OrderType.PERCENTAGE24 -> coinsOnScreen.value =
+                coinsOnScreen.value.sortedByDescending { x -> x.priceChangePercentage24h }
+            OrderType.MARKETCAP -> coinsOnScreen.value =
+                coinsOnScreen.value.sortedBy { x -> x.marketCapRank }
+        }
+    }
+
     fun search() {
         searchList.value = listOf()
         if (category.value.value == CoinCategory.MARKET.value)
             searchList.value = coinsFromService.value
-        else searchList.value = coinsFromPortfolio.value
+        else {
+            searchList.value =
+                if (selectedPortfolioCategory.value.isNotEmpty())
+                    coinsFromPortfolio.value.filter { x -> x.portfolioCategory == selectedPortfolioCategory.value }
+                else
+                    coinsFromPortfolio.value
+        }
 
         with(searchList.value) {
             if (size < 1) return
@@ -122,6 +161,7 @@ class CoinFeedViewModel @Inject constructor(
     }
 
     fun refresh() {
+        selectedPortfolioCategory.value = ""
         getCoins()
     }
 

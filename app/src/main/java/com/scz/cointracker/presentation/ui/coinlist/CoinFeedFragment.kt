@@ -6,9 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.animation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.*
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -22,9 +19,13 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-import com.scz.cointracker.domain.model.Coin
-import com.scz.cointracker.presentation.components.*
-import com.scz.cointracker.presentation.util.AnimationUtil
+import com.scz.cointracker.presentation.components.animation.CircularIndeterminateProgressBar
+import com.scz.cointracker.presentation.components.animation.ExpandInFadeOutAnimatedContent
+import com.scz.cointracker.presentation.components.animation.FadeInFadeOutAnimatedContent
+import com.scz.cointracker.presentation.components.appbar.*
+import com.scz.cointracker.presentation.components.cards.LoadingCoinShimmer
+import com.scz.cointracker.presentation.components.list.MarketList
+import com.scz.cointracker.presentation.components.list.PortfolioList
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -50,9 +51,8 @@ class CoinFeedFragment : Fragment() {
                 val loading = viewModel.loading.value
                 val coroutineScope = rememberCoroutineScope()
                 val scaffoldState = rememberScaffoldState()
-                val itemListState = remember {
-                    mutableStateOf(coinsOnScreen)
-                }
+                val portfolioItemListState = remember { mutableStateOf(coinsOnScreen) }
+
                 Column {
                     Scaffold(
                         topBar = {
@@ -71,17 +71,23 @@ class CoinFeedFragment : Fragment() {
                         },
                         scaffoldState = scaffoldState,
                         drawerContent = {
-                            BottomDrawer(
+                            DefaultBottomDrawer(
                                 focusManager,
                                 coroutineScope,
                                 scaffoldState,
                                 coinsFromService,
-                                viewModel::addCoinToPortfolio
+                                viewModel::addCoinToPortfolio,
+                                viewModel.getPortfolioCategories()
                             )
                         },
                         drawerElevation = 8.dp,
                         bottomBar = {
-                            BottomAppBar()
+                            DefaultBottomAppBar(
+                                { viewModel.order(OrderType.PROFIT) },
+                                { viewModel.order(OrderType.SELLINGPRICE) },
+                                { viewModel.order(OrderType.PERCENTAGE24) },
+                                { viewModel.order(OrderType.MARKETCAP) }
+                            )
                         },
                         floatingActionButton = {
                             CustomFloatingActionButton(coroutineScope, scaffoldState)
@@ -100,41 +106,19 @@ class CoinFeedFragment : Fragment() {
                             ExpandInFadeOutAnimatedContent(visible = !loading) {
                                 SwipeRefresh(state = rememberSwipeRefreshState(false),
                                     onRefresh = { viewModel.refresh() }) {
-                                    if (viewModel.category.value == CoinCategory.MARKET) LazyColumn {
-                                        itemsIndexed(items = coinsOnScreen) { _, coin ->
-                                            CoinCard(
-                                                coin = coin,
-                                                onClick = {},
-                                                category = viewModel.category.value
-                                            )
-                                        }
-                                    }
-                                    else if (coinsOnScreen.isNotEmpty()) LazyColumn {
-                                        items(
-                                            coinsOnScreen,
-                                            { coin: Coin -> coin.entityId }) { coin ->
-                                            SwipeDismissItem(
-                                                content = {
-                                                    Column(
-                                                        modifier = Modifier.fillMaxWidth()
-                                                    ) {
-                                                        CoinCard(
-                                                            coin = coin,
-                                                            onClick = {},
-                                                            category = viewModel.category.value
-                                                        )
-                                                    }
-                                                },
-                                                onDismissed = { isDismissed ->
-                                                    if (isDismissed) {
-                                                        itemListState.value =
-                                                            itemListState.value.filter { it != coin }
-                                                        viewModel.deleteCoinFromPortfolio(coin)
-                                                    }
-                                                }
-                                            )
-                                        }
-                                    }
+                                    if (viewModel.category.value == CoinCategory.MARKET) MarketList(
+                                        coinsOnScreen = coinsOnScreen,
+                                        category = viewModel.category.value
+                                    )
+                                    else if (coinsOnScreen.isNotEmpty()) PortfolioList(
+                                        selectedCategory = viewModel.category.value,
+                                        coinsOnScreen = coinsOnScreen,
+                                        itemListState = portfolioItemListState,
+                                        onDismissed = viewModel::deleteCoinFromPortfolio,
+                                        portfolioCategory = viewModel.getPortfolioCategories(),
+                                        onPortfolioCategoryChanged = viewModel::onPortfolioCategoryChanged,
+                                        selectedPortolioCategory = viewModel.selectedPortfolioCategory.value,
+                                    )
                                 }
                             }
                             DefaultSnackbar(

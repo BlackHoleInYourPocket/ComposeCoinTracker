@@ -1,11 +1,12 @@
-package com.scz.cointracker.presentation.components
+package com.scz.cointracker.presentation.components.animation
 
 import androidx.compose.animation.*
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import com.scz.cointracker.presentation.util.AnimationUtil
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -52,4 +53,21 @@ fun ExpandInFadeOutAnimatedContent(
         exit = fadeOut(animationSpec = AnimationUtil.getAnimationSpecFloat(duration = 100)),
         content = content
     )
+}
+
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+fun CircularIndeterminateProgressBar(isDisplayed: Boolean) {
+    if (isDisplayed)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            CircularProgressIndicator(
+                color = MaterialTheme.colors.primary
+            )
+        }
 }

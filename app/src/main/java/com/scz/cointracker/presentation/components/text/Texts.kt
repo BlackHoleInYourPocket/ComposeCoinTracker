@@ -1,22 +1,21 @@
-package com.scz.cointracker.presentation.components
+package com.scz.cointracker.presentation.components.text
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Cancel
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextOverflow
 
 @Composable
-fun TwoLineText(title: String, value: String, widthFraction: Float = 1f) {
+fun TwoLineText(
+    title: String,
+    value: String,
+    widthFraction: Float = 1f,
+    titleColor: Color = Color.Black,
+    valueColor: Color = Color.Black
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth(widthFraction)
@@ -26,12 +25,18 @@ fun TwoLineText(title: String, value: String, widthFraction: Float = 1f) {
         Text(
             text = title, modifier = Modifier
                 .fillMaxWidth()
-                .wrapContentWidth(Alignment.CenterHorizontally)
+                .wrapContentWidth(Alignment.CenterHorizontally),
+            color = titleColor,
+            overflow = TextOverflow.Ellipsis,
+            maxLines = 1
         )
         Text(
             text = value, modifier = Modifier
                 .fillMaxWidth()
-                .wrapContentWidth(Alignment.CenterHorizontally)
+                .wrapContentWidth(Alignment.CenterHorizontally),
+            color = valueColor,
+            overflow = TextOverflow.Ellipsis,
+            maxLines = 1
         )
     }
 }

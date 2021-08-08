@@ -1,4 +1,4 @@
-package com.scz.cointracker.presentation.components
+package com.scz.cointracker.presentation.components.cards
 
 import android.graphics.Bitmap
 import androidx.compose.foundation.Image
@@ -6,10 +6,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
@@ -18,6 +17,8 @@ import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.dp
 import com.scz.cointracker.R
 import com.scz.cointracker.domain.model.Coin
+import com.scz.cointracker.presentation.components.text.OneLineText
+import com.scz.cointracker.presentation.components.text.TwoLineText
 import com.scz.cointracker.presentation.ui.coinlist.CoinCategory
 import com.scz.cointracker.util.loadPicture
 
@@ -70,8 +71,8 @@ fun CoinCard(
                     TwoLineText(
                         title = if (category.value == CoinCategory.MARKET.value) stringResource(id = R.string.feed_title7)
                         else stringResource(id = R.string.feed_title1),
-                        value = if (category.value == CoinCategory.MARKET.value) coin.marketCap.toString()
-                        else coin.boughtPrice.toString(),
+                        value = if (category.value == CoinCategory.MARKET.value) marketCap.toString()
+                        else boughtPrice.toString(),
                         widthFraction = 0.33f
                     )
                     TwoLineText(
@@ -82,8 +83,10 @@ fun CoinCard(
                     TwoLineText(
                         title = if (category.value == CoinCategory.MARKET.value) stringResource(id = R.string.feed_title8)
                         else stringResource(id = R.string.feed_title3),
-                        value = if (category.value == CoinCategory.MARKET.value) coin.marketCapRank.toString()
-                        else coin.profit.toString()
+                        value = if (category.value == CoinCategory.MARKET.value) marketCapRank.toString()
+                        else String.format("%.3f", profit),
+                        valueColor = if (category.value == CoinCategory.PORTFOLIO.value && profit > 0) Color.Green
+                        else if (category.value == CoinCategory.PORTFOLIO.value) Color.Red else Color.Black
                     )
                 }
 
@@ -104,7 +107,7 @@ fun CoinCard(
                     )
                     TwoLineText(
                         title = stringResource(id = R.string.feed_title6),
-                        value = "% $priceChangePercentage24h"
+                        value = "% ${String.format("%.3f", priceChangePercentage24h)}"
                     )
                 }
             }

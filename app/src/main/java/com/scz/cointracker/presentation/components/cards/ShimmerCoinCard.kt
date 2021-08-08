@@ -1,5 +1,4 @@
-package com.scz.cointracker.presentation.components
-
+package com.scz.cointracker.presentation.components.cards
 
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background

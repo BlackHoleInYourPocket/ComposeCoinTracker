@@ -18,5 +18,6 @@ data class Coin(
     val high24h: Double,
     val low24h: Double,
     val priceChangePercentage24h: Double,
-    val marketCapRank: Int
+    val marketCapRank: Int,
+    var portfolioCategory: String = "",
 ) : Parcelable

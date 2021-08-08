@@ -1,4 +1,4 @@
-package com.scz.cointracker.presentation.components
+package com.scz.cointracker.presentation.components.appbar
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
@@ -29,26 +30,46 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun BottomAppBar() {
+fun DefaultBottomAppBar(
+    onClickProfit: () -> Unit,
+    onClickSellingPrice: () -> Unit,
+    onClickPercentage24h: () -> Unit,
+    onClickCapRank: () -> Unit
+) {
     BottomAppBar(cutoutShape = CircleShape) {
         Row(horizontalArrangement = Arrangement.Start) {
-            Text(text = "Low 24h", modifier = Modifier.padding(4.dp))
-            Text(text = "High 24h", modifier = Modifier.padding(4.dp))
+            Text(text = "Profit", modifier = Modifier
+                .padding(4.dp)
+                .clickable { onClickProfit() })
+            Text(
+                text = "Selling",
+                modifier = Modifier
+                    .padding(4.dp)
+                    .clickable { onClickSellingPrice() })
         }
         Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
-            Text(text = "%24h", modifier = Modifier.padding(4.dp))
-            Text(text = "Cap Rank", modifier = Modifier.padding(4.dp))
+            Text(text = "%24h", modifier = Modifier
+                .padding(4.dp)
+                .clickable {
+                    onClickPercentage24h()
+                })
+            Text(
+                text = "Cap Rank",
+                modifier = Modifier
+                    .padding(4.dp)
+                    .clickable { onClickCapRank() })
         }
     }
 }
 
 @Composable
-fun BottomDrawer(
+fun DefaultBottomDrawer(
     focusManager: FocusManager,
     coroutineScope: CoroutineScope,
     scaffoldState: ScaffoldState,
     coinList: List<Coin>,
-    onAdd: (CoinEntity) -> Unit
+    onAdd: (CoinEntity) -> Unit,
+    portfolioCategories: List<String>
 ) {
     var expanded by remember { mutableStateOf(false) }
     val items = coinList.map { it.id.capitalize(Locale.current) }
@@ -72,7 +93,7 @@ fun BottomDrawer(
         Box(
             modifier = Modifier
                 .padding(top = 24.dp, start = 16.dp, end = 16.dp)
-                .border(1.dp, Color.Black, CircleShape)
+                .border(1.dp, Color.Gray, RectangleShape)
         ) {
             Text(
                 if (selectedIndex == -1) "Select Coin" else items[selectedIndex],
@@ -82,7 +103,8 @@ fun BottomDrawer(
                         dropDownWidth = it.width
                     }
                     .clickable(onClick = { expanded = true })
-                    .padding(start = 16.dp, top = 8.dp, bottom = 8.dp)
+                    .padding(start = 16.dp, top = 16.dp, bottom = 16.dp),
+                style = MaterialTheme.typography.body2
             )
             Icon(
                 Icons.Filled.ArrowDropDown,
@@ -91,7 +113,7 @@ fun BottomDrawer(
                     .fillMaxWidth()
                     .wrapContentHeight(Alignment.CenterVertically)
                     .wrapContentWidth(Alignment.End)
-                    .padding(end = 16.dp, top = 8.dp, bottom = 8.dp)
+                    .padding(end = 16.dp, top = 16.dp, bottom = 16.dp)
             )
             DropdownMenu(
                 expanded = expanded,
@@ -102,6 +124,49 @@ fun BottomDrawer(
                 items.forEachIndexed { index, s ->
                     DropdownMenuItem(onClick = {
                         selectedIndex = index
+                        expanded = false
+                    }) {
+                        Text(text = s)
+                    }
+                }
+            }
+        }
+
+        var expanded by remember { mutableStateOf(false) }
+        var portfolioCategory by remember { mutableStateOf("") }
+        var dropDownWidth by remember { mutableStateOf(0) }
+
+        val icon = if (expanded)
+            Icons.Filled.ArrowDropDown
+        else
+            Icons.Filled.ArrowDropDown
+
+        Box(
+            modifier = Modifier
+                .padding(top = 24.dp, start = 16.dp, end = 16.dp)
+        ) {
+            OutlinedTextField(
+                value = portfolioCategory,
+                onValueChange = { portfolioCategory = it },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .onSizeChanged {
+                        dropDownWidth = it.width
+                    },
+                label = { Text("Portfolio Category", style = MaterialTheme.typography.body2) },
+                trailingIcon = {
+                    Icon(icon, "contentDescription", Modifier.clickable { expanded = !expanded })
+                }
+            )
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+                modifier = Modifier
+                    .width(with(LocalDensity.current) { dropDownWidth.toDp() })
+            ) {
+                portfolioCategories.forEachIndexed { index, s ->
+                    DropdownMenuItem(onClick = {
+                        portfolioCategory = portfolioCategories[index]
                         expanded = false
                     }) {
                         Text(text = s)
@@ -137,7 +202,7 @@ fun BottomDrawer(
         Box(modifier = Modifier.padding(top = 24.dp, start = 16.dp, end = 16.dp)) {
             Button(
                 onClick = {
-                    if (selectedIndex == -1 || boughtPrice.isEmpty() || boughtUnit.isEmpty()) {
+                    if (selectedIndex == -1 || boughtPrice.isEmpty() || boughtUnit.isEmpty() || portfolioCategory.isEmpty()) {
                         focusManager.clearFocus()
                         coroutineScope.launch {
                             scaffoldState.drawerState.close()
@@ -151,12 +216,14 @@ fun BottomDrawer(
                             CoinEntity(
                                 items[selectedIndex],
                                 boughtPrice.formatDouble(),
-                                boughtUnit.formatDouble()
+                                boughtUnit.formatDouble(),
+                                portfolioCategory
                             )
                         )
                         selectedIndex = -1
                         boughtPrice = ""
                         boughtUnit = ""
+                        portfolioCategory = ""
                         coroutineScope.launch {
                             scaffoldState.drawerState.close()
                             focusManager.clearFocus()
