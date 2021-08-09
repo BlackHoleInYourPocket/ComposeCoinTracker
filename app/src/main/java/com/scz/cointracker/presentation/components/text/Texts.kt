@@ -1,15 +1,25 @@
 package com.scz.cointracker.presentation.components.text
 
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import com.scz.cointracker.presentation.components.appbar.CustomTextField
+import com.scz.cointracker.presentation.ui.coinlist.OrderType
+import kotlinx.coroutines.CoroutineScope
 
 @Composable
-fun TwoLineText(
+fun CoinCardTwoLineText(
     title: String,
     value: String,
     widthFraction: Float = 1f,
@@ -42,7 +52,7 @@ fun TwoLineText(
 }
 
 @Composable
-fun OneLineText(text: String, widthFraction: Float = 1f) {
+fun CoinCardOneLineText(text: String, widthFraction: Float = 1f) {
     Text(
         text = text,
         modifier = Modifier
@@ -52,3 +62,37 @@ fun OneLineText(text: String, widthFraction: Float = 1f) {
             .wrapContentWidth(Alignment.CenterHorizontally)
     )
 }
+
+@Composable
+fun BottomAppBarOrderText(
+    text: String,
+    onClickOrder: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .border(1.dp, Color.LightGray, CircleShape)
+            .padding(4.dp)
+    ) {
+        Text(
+            text = text, modifier = Modifier
+                .padding(4.dp)
+                .clickable { onClickOrder() }
+        )
+    }
+}
+
+@Composable
+fun DefaultNumberTextField(focusManager: FocusManager, label: String): String {
+    var query by remember { mutableStateOf("") }
+    CustomTextField(
+        query = query,
+        onQueryChanged = { query = it },
+        label = label,
+        focusManager = focusManager,
+        onDone = { /*TODO*/ },
+        keyboardType = KeyboardType.Number,
+        onTrailIconClick = { query = "" }
+    )
+    return query
+}
+

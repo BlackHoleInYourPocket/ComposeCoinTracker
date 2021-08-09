@@ -2,10 +2,7 @@ package com.scz.cointracker.presentation.components.list
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -18,9 +15,7 @@ import com.scz.cointracker.domain.model.Coin
 import com.scz.cointracker.presentation.components.appbar.CategoryChip
 import com.scz.cointracker.presentation.components.cards.CoinCard
 import com.scz.cointracker.presentation.components.cards.SwipeDismissItem
-import com.scz.cointracker.presentation.components.text.TwoLineText
 import com.scz.cointracker.presentation.ui.coinlist.CoinCategory
-import com.scz.cointracker.presentation.ui.coinlist.getAllCategories
 
 @Composable
 fun PortfolioList(
@@ -30,7 +25,8 @@ fun PortfolioList(
     onDismissed: (Coin) -> Unit,
     portfolioCategory: List<String>,
     onPortfolioCategoryChanged: (String) -> Unit,
-    selectedPortolioCategory: String
+    selectedPortolioCategory: String,
+    state: LazyListState
 ) {
     Column {
         Row {
@@ -86,7 +82,7 @@ fun PortfolioList(
         }
 
         Row {
-            LazyColumn {
+            LazyColumn(state = state) {
                 items(
                     coinsOnScreen,
                     { coin: Coin -> coin.entityId }) { coin ->
@@ -119,7 +115,7 @@ fun PortfolioList(
 fun calculateBoughtPrice(coinsOnScreen: List<Coin>): Double {
     var boughtPrice = 0.0
     coinsOnScreen.forEach { coin ->
-        boughtPrice += coin.boughtPrice.plus(coin.boughtUnit)
+        boughtPrice += coin.boughtPrice.times(coin.boughtUnit)
     }
     return boughtPrice
 }
@@ -127,7 +123,7 @@ fun calculateBoughtPrice(coinsOnScreen: List<Coin>): Double {
 fun calculateCurrentPrice(coinsOnScreen: List<Coin>): Double {
     var currentPrice = 0.0
     coinsOnScreen.forEach { coin ->
-        currentPrice += coin.currentPrice.plus(coin.boughtUnit)
+        currentPrice += coin.currentPrice.times(coin.boughtUnit)
     }
     return currentPrice
 }

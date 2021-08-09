@@ -17,8 +17,8 @@ import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.dp
 import com.scz.cointracker.R
 import com.scz.cointracker.domain.model.Coin
-import com.scz.cointracker.presentation.components.text.OneLineText
-import com.scz.cointracker.presentation.components.text.TwoLineText
+import com.scz.cointracker.presentation.components.text.CoinCardOneLineText
+import com.scz.cointracker.presentation.components.text.CoinCardTwoLineText
 import com.scz.cointracker.presentation.ui.coinlist.CoinCategory
 import com.scz.cointracker.util.loadPicture
 
@@ -48,7 +48,7 @@ fun CoinCard(
                         .fillMaxWidth()
                         .requiredHeight(50.dp)
                 ) {
-                    OneLineText(text = symbol.uppercase(), 0.33f)
+                    CoinCardOneLineText(text = symbol.uppercase(), 0.33f)
 
                     getImage(imageUrl = imageUrl)?.let {
                         Image(
@@ -61,26 +61,26 @@ fun CoinCard(
                         )
                     }
 
-                    OneLineText(text = id.capitalize(Locale.current))
+                    CoinCardOneLineText(text = id.capitalize(Locale.current))
                 }
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .requiredHeight(50.dp)
                 ) {
-                    TwoLineText(
+                    CoinCardTwoLineText(
                         title = if (category.value == CoinCategory.MARKET.value) stringResource(id = R.string.feed_title7)
                         else stringResource(id = R.string.feed_title1),
                         value = if (category.value == CoinCategory.MARKET.value) marketCap.toString()
                         else boughtPrice.toString(),
                         widthFraction = 0.33f
                     )
-                    TwoLineText(
+                    CoinCardTwoLineText(
                         title = stringResource(id = R.string.feed_title2),
                         value = currentPrice.toString(),
                         widthFraction = 0.33f
                     )
-                    TwoLineText(
+                    CoinCardTwoLineText(
                         title = if (category.value == CoinCategory.MARKET.value) stringResource(id = R.string.feed_title8)
                         else stringResource(id = R.string.feed_title3),
                         value = if (category.value == CoinCategory.MARKET.value) marketCapRank.toString()
@@ -95,17 +95,17 @@ fun CoinCard(
                         .fillMaxWidth()
                         .requiredHeight(50.dp)
                 ) {
-                    TwoLineText(
+                    CoinCardTwoLineText(
                         title = stringResource(id = R.string.feed_title4),
                         value = low24h.toString(),
                         0.33f
                     )
-                    TwoLineText(
+                    CoinCardTwoLineText(
                         title = stringResource(id = R.string.feed_title5),
                         value = high24h.toString(),
                         0.33f
                     )
-                    TwoLineText(
+                    CoinCardTwoLineText(
                         title = stringResource(id = R.string.feed_title6),
                         value = "% ${String.format("%.3f", priceChangePercentage24h)}"
                     )

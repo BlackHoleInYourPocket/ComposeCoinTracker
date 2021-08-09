@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.animation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -52,6 +53,8 @@ class CoinFeedFragment : Fragment() {
                 val coroutineScope = rememberCoroutineScope()
                 val scaffoldState = rememberScaffoldState()
                 val portfolioItemListState = remember { mutableStateOf(coinsOnScreen) }
+                val rememberLazyListStatePortfolio = rememberLazyListState()
+                val rememberLazyListStateMarket = rememberLazyListState()
 
                 Column {
                     Scaffold(
@@ -83,10 +86,9 @@ class CoinFeedFragment : Fragment() {
                         drawerElevation = 8.dp,
                         bottomBar = {
                             DefaultBottomAppBar(
-                                { viewModel.order(OrderType.PROFIT) },
-                                { viewModel.order(OrderType.SELLINGPRICE) },
-                                { viewModel.order(OrderType.PERCENTAGE24) },
-                                { viewModel.order(OrderType.MARKETCAP) }
+                                onClickOrder = viewModel::order,
+                                if (viewModel.category.value == CoinCategory.PORTFOLIO) rememberLazyListStatePortfolio else rememberLazyListStateMarket,
+                                coroutineScope
                             )
                         },
                         floatingActionButton = {
@@ -108,7 +110,8 @@ class CoinFeedFragment : Fragment() {
                                     onRefresh = { viewModel.refresh() }) {
                                     if (viewModel.category.value == CoinCategory.MARKET) MarketList(
                                         coinsOnScreen = coinsOnScreen,
-                                        category = viewModel.category.value
+                                        category = viewModel.category.value,
+                                        state = rememberLazyListStateMarket
                                     )
                                     else if (coinsOnScreen.isNotEmpty()) PortfolioList(
                                         selectedCategory = viewModel.category.value,
@@ -118,6 +121,7 @@ class CoinFeedFragment : Fragment() {
                                         portfolioCategory = viewModel.getPortfolioCategories(),
                                         onPortfolioCategoryChanged = viewModel::onPortfolioCategoryChanged,
                                         selectedPortolioCategory = viewModel.selectedPortfolioCategory.value,
+                                        state = rememberLazyListStatePortfolio
                                     )
                                 }
                             }

@@ -1,5 +1,6 @@
 package com.scz.cointracker.presentation.ui.coinlist
 
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.text.intl.Locale
@@ -10,6 +11,7 @@ import com.scz.cointracker.domain.model.Coin
 import com.scz.cointracker.repository.CoinRepository
 import com.scz.cointracker.room.model.CoinEntity
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -20,13 +22,13 @@ class CoinFeedViewModel @Inject constructor(
 
     val coinsOnScreen: MutableState<List<Coin>> = mutableStateOf(listOf())
     val coinsFromService: MutableState<List<Coin>> = mutableStateOf(listOf())
-    val coinsFromPortfolio: MutableState<List<Coin>> = mutableStateOf(listOf())
-    private val searchList: MutableState<List<Coin>> = mutableStateOf(listOf())
     val query = mutableStateOf("")
     val category = mutableStateOf(CoinCategory.MARKET)
     val loading = mutableStateOf(false)
-    val portfolioCategories: MutableState<List<String>> = mutableStateOf(listOf())
     val selectedPortfolioCategory = mutableStateOf("")
+    private val portfolioCategories: MutableState<List<String>> = mutableStateOf(listOf())
+    private val coinsFromPortfolio: MutableState<List<Coin>> = mutableStateOf(listOf())
+    private val searchList: MutableState<List<Coin>> = mutableStateOf(listOf())
 
     init {
         getCoins()
@@ -87,13 +89,6 @@ class CoinFeedViewModel @Inject constructor(
         loading.value = false
     }
 
-    private fun calcualteProfit(list: List<Coin>): List<Coin> {
-        list.forEach {
-            it.profit = it.currentPrice.minus(it.boughtPrice).times(it.boughtUnit)
-        }
-        return list
-    }
-
     fun addCoinToPortfolio(coin: CoinEntity) {
         viewModelScope.launch {
             loading.value = true
@@ -110,32 +105,29 @@ class CoinFeedViewModel @Inject constructor(
         }
     }
 
-    fun onPortfolioCategoryChanged(category: String) {
-        selectedPortfolioCategory.value = category
-        coinsOnScreen.value =
-            coinsFromPortfolio.value.filter { x -> x.portfolioCategory == category }
+    fun getPortfolioCategories(): List<String> {
+        return portfolioCategories.value
     }
 
     private fun mapPortfolioCategories(portfolio: List<CoinEntity>) {
         portfolioCategories.value = portfolio.map { it.portfolioCategory }.distinct()
     }
 
-    fun getPortfolioCategories(): List<String> {
-        return portfolioCategories.value
-    }
-
-    fun order(orderType: OrderType) {
+    fun order(orderType: OrderType, listState: LazyListState, coroutineScope: CoroutineScope) {
         when (orderType) {
-            OrderType.PROFIT -> {
+            OrderType.PROFIT ->
                 if (category.value == CoinCategory.PORTFOLIO) coinsOnScreen.value =
                     coinsOnScreen.value.sortedByDescending { x -> x.profit }
-            }
             OrderType.SELLINGPRICE -> coinsOnScreen.value =
                 coinsOnScreen.value.sortedByDescending { x -> x.currentPrice }
             OrderType.PERCENTAGE24 -> coinsOnScreen.value =
                 coinsOnScreen.value.sortedByDescending { x -> x.priceChangePercentage24h }
             OrderType.MARKETCAP -> coinsOnScreen.value =
                 coinsOnScreen.value.sortedBy { x -> x.marketCapRank }
+
+        }
+        coroutineScope.launch {
+            listState.animateScrollToItem(0)
         }
     }
 
@@ -165,6 +157,28 @@ class CoinFeedViewModel @Inject constructor(
         getCoins()
     }
 
+    private fun calcualteProfit(list: List<Coin>): List<Coin> {
+        list.forEach {
+            it.profit = it.currentPrice.minus(it.boughtPrice).times(it.boughtUnit)
+        }
+        return list
+    }
+
+    fun categoryChanged(category: CoinCategory) {
+        this.category.value = category
+        clearQueryText()
+        when (category) {
+            CoinCategory.MARKET -> getCoins()
+            CoinCategory.PORTFOLIO -> getPortfolio()
+        }
+    }
+
+    fun onPortfolioCategoryChanged(category: String) {
+        selectedPortfolioCategory.value = category
+        coinsOnScreen.value =
+            coinsFromPortfolio.value.filter { x -> x.portfolioCategory == category }
+    }
+
     fun onQueryChanged(query: String) {
         this.query.value = query
     }
@@ -176,14 +190,5 @@ class CoinFeedViewModel @Inject constructor(
 
     fun clearQueryText() {
         query.value = ""
-    }
-
-    fun categoryChanged(category: CoinCategory) {
-        this.category.value = category
-        clearQueryText()
-        when (category) {
-            CoinCategory.MARKET -> getCoins()
-            CoinCategory.PORTFOLIO -> getPortfolio()
-        }
     }
 }

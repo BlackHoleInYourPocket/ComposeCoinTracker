@@ -3,6 +3,7 @@ package com.scz.cointracker.presentation.components.appbar
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -25,39 +26,38 @@ import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.dp
 import com.scz.cointracker.domain.model.Coin
 import com.scz.cointracker.extensions.formatDouble
+import com.scz.cointracker.presentation.components.dropdown.DefaultDropdown
+import com.scz.cointracker.presentation.components.dropdown.OutlinedDropdown
+import com.scz.cointracker.presentation.components.text.BottomAppBarOrderText
+import com.scz.cointracker.presentation.components.text.DefaultNumberTextField
+import com.scz.cointracker.presentation.ui.coinlist.OrderType
 import com.scz.cointracker.room.model.CoinEntity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
 fun DefaultBottomAppBar(
-    onClickProfit: () -> Unit,
-    onClickSellingPrice: () -> Unit,
-    onClickPercentage24h: () -> Unit,
-    onClickCapRank: () -> Unit
+    onClickOrder: (OrderType, LazyListState, CoroutineScope) -> Unit,
+    state: LazyListState,
+    coroutineScope: CoroutineScope
 ) {
     BottomAppBar(cutoutShape = CircleShape) {
         Row(horizontalArrangement = Arrangement.Start) {
-            Text(text = "Profit", modifier = Modifier
-                .padding(4.dp)
-                .clickable { onClickProfit() })
-            Text(
+            BottomAppBarOrderText(
+                text = "Profit",
+                onClickOrder = { onClickOrder(OrderType.PROFIT, state, coroutineScope) })
+
+            BottomAppBarOrderText(
                 text = "Selling",
-                modifier = Modifier
-                    .padding(4.dp)
-                    .clickable { onClickSellingPrice() })
+                onClickOrder = { onClickOrder(OrderType.SELLINGPRICE, state, coroutineScope) })
         }
         Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
-            Text(text = "%24h", modifier = Modifier
-                .padding(4.dp)
-                .clickable {
-                    onClickPercentage24h()
-                })
-            Text(
+            BottomAppBarOrderText(
+                text = "%24h",
+                onClickOrder = { onClickOrder(OrderType.PERCENTAGE24, state, coroutineScope) })
+            BottomAppBarOrderText(
                 text = "Cap Rank",
-                modifier = Modifier
-                    .padding(4.dp)
-                    .clickable { onClickCapRank() })
+                onClickOrder = { onClickOrder(OrderType.MARKETCAP, state, coroutineScope) })
         }
     }
 }
@@ -71,10 +71,9 @@ fun DefaultBottomDrawer(
     onAdd: (CoinEntity) -> Unit,
     portfolioCategories: List<String>
 ) {
-    var expanded by remember { mutableStateOf(false) }
     val items = coinList.map { it.id.capitalize(Locale.current) }
-    var dropDownWidth by remember { mutableStateOf(0) }
-    var selectedIndex by remember { mutableStateOf(-1) }
+    var selectedCoin by remember { mutableStateOf("") }
+    var selectedCategory by remember { mutableStateOf("") }
     var boughtPrice by remember { mutableStateOf("") }
     var boughtUnit by remember { mutableStateOf("") }
     if (items.isEmpty()) return
@@ -95,114 +94,29 @@ fun DefaultBottomDrawer(
                 .padding(top = 24.dp, start = 16.dp, end = 16.dp)
                 .border(1.dp, Color.Gray, RectangleShape)
         ) {
-            Text(
-                if (selectedIndex == -1) "Select Coin" else items[selectedIndex],
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .onSizeChanged {
-                        dropDownWidth = it.width
-                    }
-                    .clickable(onClick = { expanded = true })
-                    .padding(start = 16.dp, top = 16.dp, bottom = 16.dp),
-                style = MaterialTheme.typography.body2
-            )
-            Icon(
-                Icons.Filled.ArrowDropDown,
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight(Alignment.CenterVertically)
-                    .wrapContentWidth(Alignment.End)
-                    .padding(end = 16.dp, top = 16.dp, bottom = 16.dp)
-            )
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false },
-                modifier = Modifier
-                    .width(with(LocalDensity.current) { dropDownWidth.toDp() })
-            ) {
-                items.forEachIndexed { index, s ->
-                    DropdownMenuItem(onClick = {
-                        selectedIndex = index
-                        expanded = false
-                    }) {
-                        Text(text = s)
-                    }
-                }
-            }
+            selectedCoin = DefaultDropdown(items = items)
         }
-
-        var expanded by remember { mutableStateOf(false) }
-        var portfolioCategory by remember { mutableStateOf("") }
-        var dropDownWidth by remember { mutableStateOf(0) }
-
-        val icon = if (expanded)
-            Icons.Filled.ArrowDropDown
-        else
-            Icons.Filled.ArrowDropDown
 
         Box(
             modifier = Modifier
                 .padding(top = 24.dp, start = 16.dp, end = 16.dp)
         ) {
-            OutlinedTextField(
-                value = portfolioCategory,
-                onValueChange = { portfolioCategory = it },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .onSizeChanged {
-                        dropDownWidth = it.width
-                    },
-                label = { Text("Portfolio Category", style = MaterialTheme.typography.body2) },
-                trailingIcon = {
-                    Icon(icon, "contentDescription", Modifier.clickable { expanded = !expanded })
-                }
-            )
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false },
-                modifier = Modifier
-                    .width(with(LocalDensity.current) { dropDownWidth.toDp() })
-            ) {
-                portfolioCategories.forEachIndexed { index, s ->
-                    DropdownMenuItem(onClick = {
-                        portfolioCategory = portfolioCategories[index]
-                        expanded = false
-                    }) {
-                        Text(text = s)
-                    }
-                }
-            }
+            selectedCategory = OutlinedDropdown(items = portfolioCategories)
         }
 
         Box(modifier = Modifier.padding(top = 24.dp, start = 16.dp, end = 16.dp)) {
-            CustomTextField(
-                query = boughtPrice,
-                onQueryChanged = { boughtPrice = it },
-                label = "Bought Price",
-                focusManager = focusManager,
-                onDone = { /*TODO*/ },
-                keyboardType = KeyboardType.Number,
-                onTrailIconClick = { boughtPrice = "" }
-            )
+            boughtPrice =
+                DefaultNumberTextField(focusManager = focusManager, label = "Bought Price")
         }
 
         Box(modifier = Modifier.padding(top = 24.dp, start = 16.dp, end = 16.dp)) {
-            CustomTextField(
-                query = boughtUnit,
-                onQueryChanged = { boughtUnit = it },
-                label = "Bought Unit",
-                focusManager = focusManager,
-                onDone = { /*TODO*/ },
-                keyboardType = KeyboardType.Number,
-                onTrailIconClick = { boughtUnit = "" }
-            )
+            boughtUnit = DefaultNumberTextField(focusManager = focusManager, label = "Bought Unit")
         }
 
         Box(modifier = Modifier.padding(top = 24.dp, start = 16.dp, end = 16.dp)) {
             Button(
                 onClick = {
-                    if (selectedIndex == -1 || boughtPrice.isEmpty() || boughtUnit.isEmpty() || portfolioCategory.isEmpty()) {
+                    if (selectedCoin.isEmpty() || boughtPrice.isEmpty() || boughtUnit.isEmpty() || selectedCategory.isEmpty()) {
                         focusManager.clearFocus()
                         coroutineScope.launch {
                             scaffoldState.drawerState.close()
@@ -214,16 +128,16 @@ fun DefaultBottomDrawer(
                     } else {
                         onAdd(
                             CoinEntity(
-                                items[selectedIndex],
+                                selectedCoin,
                                 boughtPrice.formatDouble(),
                                 boughtUnit.formatDouble(),
-                                portfolioCategory
+                                selectedCategory
                             )
                         )
-                        selectedIndex = -1
+                        selectedCoin = ""
                         boughtPrice = ""
                         boughtUnit = ""
-                        portfolioCategory = ""
+                        selectedCategory = ""
                         coroutineScope.launch {
                             scaffoldState.drawerState.close()
                             focusManager.clearFocus()
