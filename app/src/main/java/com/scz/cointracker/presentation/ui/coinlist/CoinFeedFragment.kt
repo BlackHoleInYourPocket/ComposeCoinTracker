@@ -18,6 +18,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.findNavController
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.scz.cointracker.presentation.components.animation.CircularIndeterminateProgressBar
@@ -121,7 +122,8 @@ class CoinFeedFragment : Fragment() {
                                         portfolioCategory = viewModel.getPortfolioCategories(),
                                         onPortfolioCategoryChanged = viewModel::onPortfolioCategoryChanged,
                                         selectedPortolioCategory = viewModel.selectedPortfolioCategory.value,
-                                        state = rememberLazyListStatePortfolio
+                                        state = rememberLazyListStatePortfolio,
+                                        navController = findNavController()
                                     )
                                 }
                             }

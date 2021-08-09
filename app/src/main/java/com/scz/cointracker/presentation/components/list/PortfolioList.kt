@@ -1,5 +1,6 @@
 package com.scz.cointracker.presentation.components.list
 
+import android.os.Bundle
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
@@ -11,11 +12,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.scz.cointracker.domain.model.Coin
 import com.scz.cointracker.presentation.components.appbar.CategoryChip
 import com.scz.cointracker.presentation.components.cards.CoinCard
 import com.scz.cointracker.presentation.components.cards.SwipeDismissItem
 import com.scz.cointracker.presentation.ui.coinlist.CoinCategory
+import com.scz.cointracker.R
 
 @Composable
 fun PortfolioList(
@@ -26,7 +29,8 @@ fun PortfolioList(
     portfolioCategory: List<String>,
     onPortfolioCategoryChanged: (String) -> Unit,
     selectedPortolioCategory: String,
-    state: LazyListState
+    state: LazyListState,
+    navController: NavController
 ) {
     Column {
         Row {
@@ -93,7 +97,13 @@ fun PortfolioList(
                             ) {
                                 CoinCard(
                                     coin = coin,
-                                    onClick = {},
+                                    onClick = {
+                                        if (coin.id != null) {
+                                            val bundle = Bundle()
+                                            bundle.putSerializable("COIN", coin)
+                                            navController.navigate(R.id.viewDetail, bundle)
+                                        }
+                                    },
                                     category = selectedCategory
                                 )
                             }

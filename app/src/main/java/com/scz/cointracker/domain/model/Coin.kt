@@ -1,9 +1,7 @@
 package com.scz.cointracker.domain.model
 
-import android.os.Parcelable
-import kotlinx.android.parcel.Parcelize
+import java.io.Serializable
 
-@Parcelize
 data class Coin(
     var entityId: Int = -1,
     val id: String,
@@ -20,4 +18,4 @@ data class Coin(
     val priceChangePercentage24h: Double,
     val marketCapRank: Int,
     var portfolioCategory: String = "",
-) : Parcelable
+) : Serializable
