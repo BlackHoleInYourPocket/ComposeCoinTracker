@@ -1,7 +1,9 @@
 package com.scz.cointracker.di
 
+import com.scz.cointracker.network.BinanceService
 import com.scz.cointracker.network.CoinService
 import com.scz.cointracker.network.model.CoinDtoMapper
+import com.scz.cointracker.network.model.TickerDtoMapper
 import com.scz.cointracker.repository.CoinRepository
 import com.scz.cointracker.repository.CoinRepository_Impl
 import com.scz.cointracker.room.CoinDao
@@ -20,8 +22,10 @@ object RepositoryModule {
     fun provideCoinRepository(
         dao: CoinDao,
         coinService: CoinService,
-        coinDtoMapper: CoinDtoMapper
+        binanceService: BinanceService,
+        coinDtoMapper: CoinDtoMapper,
+        tickerMapper: TickerDtoMapper
     ): CoinRepository {
-        return CoinRepository_Impl(dao, coinService, coinDtoMapper)
+        return CoinRepository_Impl(dao, coinService, binanceService, coinDtoMapper, tickerMapper)
     }
 }

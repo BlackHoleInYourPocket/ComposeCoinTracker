@@ -19,11 +19,14 @@ import com.scz.cointracker.presentation.components.cards.CoinCard
 import com.scz.cointracker.presentation.components.cards.SwipeDismissItem
 import com.scz.cointracker.presentation.ui.coinlist.CoinCategory
 import com.scz.cointracker.R
+import com.scz.cointracker.domain.model.Ticker
+import com.scz.cointracker.extensions.correctCurrentPrice
 
 @Composable
 fun PortfolioList(
     selectedCategory: CoinCategory,
     coinsOnScreen: List<Coin>,
+    tickers: List<Ticker>,
     itemListState: MutableState<List<Coin>>,
     onDismissed: (Coin) -> Unit,
     portfolioCategory: List<String>,
@@ -96,13 +99,11 @@ fun PortfolioList(
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 CoinCard(
-                                    coin = coin,
+                                    coin = coin.correctCurrentPrice(tickers),
                                     onClick = {
-                                        if (coin.id != null) {
-                                            val bundle = Bundle()
-                                            bundle.putSerializable("COIN", coin)
-                                            navController.navigate(R.id.viewDetail, bundle)
-                                        }
+                                        val bundle = Bundle()
+                                        bundle.putSerializable("COIN", coin)
+                                        navController.navigate(R.id.viewDetail, bundle)
                                     },
                                     category = selectedCategory
                                 )

@@ -26,7 +26,7 @@ import com.scz.cointracker.util.loadPicture
 fun CoinCard(
     coin: Coin,
     onClick: () -> Unit,
-    category: CoinCategory
+    category: CoinCategory,
 ) {
     Card(
         shape = MaterialTheme.shapes.small,

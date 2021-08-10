@@ -49,6 +49,7 @@ class CoinFeedFragment : Fragment() {
                 val coinsOnScreen = viewModel.coinsOnScreen.value
                 val coinsFromService = viewModel.coinsFromService.value
                 val query = viewModel.query.value
+                val tickers = viewModel.tickers.value
                 val focusManager = LocalFocusManager.current
                 val loading = viewModel.loading.value
                 val coroutineScope = rememberCoroutineScope()
@@ -111,12 +112,14 @@ class CoinFeedFragment : Fragment() {
                                     onRefresh = { viewModel.refresh() }) {
                                     if (viewModel.category.value == CoinCategory.MARKET) MarketList(
                                         coinsOnScreen = coinsOnScreen,
+                                        tickers = tickers,
                                         category = viewModel.category.value,
                                         state = rememberLazyListStateMarket
                                     )
                                     else if (coinsOnScreen.isNotEmpty()) PortfolioList(
                                         selectedCategory = viewModel.category.value,
                                         coinsOnScreen = coinsOnScreen,
+                                        tickers = tickers,
                                         itemListState = portfolioItemListState,
                                         onDismissed = viewModel::deleteCoinFromPortfolio,
                                         portfolioCategory = viewModel.getPortfolioCategories(),

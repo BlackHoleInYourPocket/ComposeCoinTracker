@@ -1,5 +1,6 @@
 package com.scz.cointracker.presentation.ui.coinlist
 
+import android.util.Log
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -8,6 +9,7 @@ import androidx.compose.ui.text.toLowerCase
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.scz.cointracker.domain.model.Coin
+import com.scz.cointracker.domain.model.Ticker
 import com.scz.cointracker.repository.CoinRepository
 import com.scz.cointracker.room.model.CoinEntity
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -22,6 +24,7 @@ class CoinFeedViewModel @Inject constructor(
 
     val coinsOnScreen: MutableState<List<Coin>> = mutableStateOf(listOf())
     val coinsFromService: MutableState<List<Coin>> = mutableStateOf(listOf())
+    val tickers: MutableState<List<Ticker>> = mutableStateOf(listOf())
     val query = mutableStateOf("")
     val category = mutableStateOf(CoinCategory.MARKET)
     val loading = mutableStateOf(false)
@@ -32,6 +35,7 @@ class CoinFeedViewModel @Inject constructor(
 
     init {
         getCoins()
+        getTicker()
     }
 
     fun getCoins() {
@@ -44,6 +48,14 @@ class CoinFeedViewModel @Inject constructor(
                 else getPortfolio()
             }
             loading.value = false
+        }
+    }
+
+    fun getTicker() {
+        viewModelScope.launch {
+            repository.getTicker().data?.let {
+                tickers.value = it
+            }
         }
     }
 

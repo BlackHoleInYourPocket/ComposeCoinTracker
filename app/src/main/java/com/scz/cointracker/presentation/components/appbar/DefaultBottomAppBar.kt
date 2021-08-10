@@ -71,7 +71,7 @@ fun DefaultBottomDrawer(
     onAdd: (CoinEntity) -> Unit,
     portfolioCategories: List<String>
 ) {
-    val items = coinList.map { it.id.capitalize(Locale.current) }
+    val items = coinList.map { it.id.capitalize(Locale.current) }.sorted()
     var selectedCoin by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf("") }
     var boughtPrice by remember { mutableStateOf("") }

@@ -11,7 +11,7 @@ data class Coin(
     var boughtUnit: Double = 0.0,
     var profit: Double = 0.0,
     val imageUrl: String,
-    val currentPrice: Double,
+    var currentPrice: Double = 0.0,
     val marketCap: Long,
     val high24h: Double,
     val low24h: Double,
