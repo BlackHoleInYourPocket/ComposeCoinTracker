@@ -47,7 +47,7 @@ fun PortfolioList(
         duplicatedCoins.add(coinsOnScreen.filter { x -> x.id == it.key })
     }
 
-    Column(modifier = Modifier.padding(bottom = 16.dp)) {
+    Column() {
         Row {
             LazyRow(
                 modifier = Modifier

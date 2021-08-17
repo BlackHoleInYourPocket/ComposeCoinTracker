@@ -72,11 +72,11 @@ fun BottomAppBarOrderText(
 ) {
     Box(
         modifier = Modifier
-            .border(1.dp, Color.LightGray, CircleShape)
+            .border(1.dp, Color.White, CircleShape)
             .padding(4.dp)
     ) {
         Text(
-            text = text, modifier = Modifier
+            color = Color.White, text = text, modifier = Modifier
                 .padding(4.dp)
                 .clickable { onClickOrder() }
         )

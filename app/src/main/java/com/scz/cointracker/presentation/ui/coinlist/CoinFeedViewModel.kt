@@ -66,7 +66,6 @@ class CoinFeedViewModel @Inject constructor(
         val portfolioList = ArrayList<Coin>()
         viewModelScope.launch {
             portfolio = repository.getCoins()
-            mapPortfolioCategories(portfolio)
             portfolio.forEach { portfolioCoin ->
                 coinsFromService.value.find { x -> x.id.lowercase() == portfolioCoin.ids.lowercase() }
                     ?.let { coin ->
@@ -96,6 +95,7 @@ class CoinFeedViewModel @Inject constructor(
             }
             coinsFromPortfolio.value = portfolioList
             coinsOnScreen.value = portfolioList
+            mapPortfolioCategories(portfolio)
         }
         loading.value = false
     }
@@ -123,6 +123,8 @@ class CoinFeedViewModel @Inject constructor(
 
     private fun mapPortfolioCategories(portfolio: List<CoinEntity>) {
         portfolioCategories.value = portfolio.map { it.portfolioCategory }.distinct()
+        selectedPortfolioCategory.value = portfolioCategories.value.first()
+        onPortfolioCategoryChanged(portfolioCategories.value.first())
     }
 
     fun order(orderType: OrderType, listState: LazyListState, coroutineScope: CoroutineScope) {
@@ -165,7 +167,6 @@ class CoinFeedViewModel @Inject constructor(
     }
 
     fun refresh() {
-        selectedPortfolioCategory.value = ""
         getCoins()
         getTicker()
     }

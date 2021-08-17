@@ -20,7 +20,7 @@ fun MarketList(
     category: CoinCategory,
     state: LazyListState
 ) {
-    LazyColumn(state = state, modifier = Modifier.padding(bottom = 16.dp)) {
+    LazyColumn(state = state) {
         itemsIndexed(items = coinsOnScreen) { _, coin ->
             CoinCard(
                 coin = coin.correctCurrentPrice(tickers),

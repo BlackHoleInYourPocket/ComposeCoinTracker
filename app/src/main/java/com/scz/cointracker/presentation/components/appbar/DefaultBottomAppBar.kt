@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
@@ -46,7 +47,7 @@ fun DefaultBottomAppBar(
             BottomAppBarOrderText(
                 text = "Profit",
                 onClickOrder = { onClickOrder(OrderType.PROFIT, state, coroutineScope) })
-
+            Spacer(modifier = Modifier.padding(end = 8.dp))
             BottomAppBarOrderText(
                 text = "Selling",
                 onClickOrder = { onClickOrder(OrderType.SELLINGPRICE, state, coroutineScope) })
@@ -55,6 +56,7 @@ fun DefaultBottomAppBar(
             BottomAppBarOrderText(
                 text = "%24h",
                 onClickOrder = { onClickOrder(OrderType.PERCENTAGE24, state, coroutineScope) })
+            Spacer(modifier = Modifier.padding(end = 8.dp))
             BottomAppBarOrderText(
                 text = "Cap Rank",
                 onClickOrder = { onClickOrder(OrderType.MARKETCAP, state, coroutineScope) })
@@ -190,7 +192,8 @@ fun CustomFloatingActionButton(
     scaffoldState: ScaffoldState
 ) {
     ExtendedFloatingActionButton(
-        text = { Text("Add Portfolio") },
+        modifier = Modifier.padding(top = 32.dp, start = 0.dp, end = 0.dp),
+        text = { Text(text = "ADD", style = MaterialTheme.typography.body2) },
         onClick = { coroutineScope.launch { scaffoldState.drawerState.open() } }
     )
 }

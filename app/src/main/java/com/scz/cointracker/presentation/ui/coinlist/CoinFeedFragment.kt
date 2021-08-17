@@ -28,6 +28,7 @@ import com.scz.cointracker.presentation.components.appbar.*
 import com.scz.cointracker.presentation.components.cards.LoadingCoinShimmer
 import com.scz.cointracker.presentation.components.list.MarketList
 import com.scz.cointracker.presentation.components.list.PortfolioList
+import com.scz.cointracker.ui.theme.CoinTrackerTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -46,99 +47,106 @@ class CoinFeedFragment : Fragment() {
     ): View {
         return ComposeView(requireContext()).apply {
             setContent {
-                val coinsOnScreen = viewModel.coinsOnScreen.value
-                val coinsFromService = viewModel.coinsFromService.value
-                val query = viewModel.query.value
-                val tickers = viewModel.tickers.value
-                val focusManager = LocalFocusManager.current
-                val loading = viewModel.loading.value
-                val coroutineScope = rememberCoroutineScope()
-                val scaffoldState = rememberScaffoldState()
-                val portfolioItemListState = remember { mutableStateOf(coinsOnScreen) }
-                val rememberLazyListStatePortfolio = rememberLazyListState()
-                val rememberLazyListStateMarket = rememberLazyListState()
+                CoinTrackerTheme(darkTheme = false) {
+                    val coinsOnScreen = viewModel.coinsOnScreen.value
+                    val coinsFromService = viewModel.coinsFromService.value
+                    val query = viewModel.query.value
+                    val tickers = viewModel.tickers.value
+                    val focusManager = LocalFocusManager.current
+                    val loading = viewModel.loading.value
+                    val coroutineScope = rememberCoroutineScope()
+                    val scaffoldState = rememberScaffoldState()
+                    val portfolioItemListState = remember { mutableStateOf(coinsOnScreen) }
+                    val rememberLazyListStatePortfolio = rememberLazyListState()
+                    val rememberLazyListStateMarket = rememberLazyListState()
 
-                Column {
-                    Scaffold(
-                        topBar = {
-                            SearchAppBar(
-                                query = query,
-                                onQueryChanged = viewModel::onQueryChanged,
-                                search = viewModel::search,
-                                clearQuery = viewModel::clearQuery,
-                                categoryChanged = viewModel::categoryChanged,
-                                focusManager = focusManager,
-                                selectedCategory = viewModel.category.value
-                            )
-                        },
-                        snackbarHost = {
-                            scaffoldState.snackbarHostState
-                        },
-                        scaffoldState = scaffoldState,
-                        drawerContent = {
-                            DefaultBottomDrawer(
-                                focusManager,
-                                coroutineScope,
-                                scaffoldState,
-                                coinsFromService,
-                                viewModel::addCoinToPortfolio,
-                                viewModel.getPortfolioCategories()
-                            )
-                        },
-                        drawerElevation = 8.dp,
-                        bottomBar = {
-                            DefaultBottomAppBar(
-                                onClickOrder = viewModel::order,
-                                if (viewModel.category.value == CoinCategory.PORTFOLIO) rememberLazyListStatePortfolio else rememberLazyListStateMarket,
-                                coroutineScope
-                            )
-                        },
-                        floatingActionButton = {
-                            CustomFloatingActionButton(coroutineScope, scaffoldState)
-                        },
-                        floatingActionButtonPosition = FabPosition.Center,
-                        isFloatingActionButtonDocked = true
-                    ) {
-                        Box(modifier = Modifier.padding(it)) {
-                            FadeInFadeOutAnimatedContent(visible = loading, initialAlpha = 0.7f) {
-                                Box(modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(bottom = 16.dp)) {
-                                    LoadingCoinShimmer(imageHeight = 150.dp)
-                                    CircularIndeterminateProgressBar(isDisplayed = loading)
+                    Column {
+                        Scaffold(
+                            topBar = {
+                                SearchAppBar(
+                                    query = query,
+                                    onQueryChanged = viewModel::onQueryChanged,
+                                    search = viewModel::search,
+                                    clearQuery = viewModel::clearQuery,
+                                    categoryChanged = viewModel::categoryChanged,
+                                    focusManager = focusManager,
+                                    selectedCategory = viewModel.category.value
+                                )
+                            },
+                            snackbarHost = {
+                                scaffoldState.snackbarHostState
+                            },
+                            scaffoldState = scaffoldState,
+                            drawerContent = {
+                                DefaultBottomDrawer(
+                                    focusManager,
+                                    coroutineScope,
+                                    scaffoldState,
+                                    coinsFromService,
+                                    viewModel::addCoinToPortfolio,
+                                    viewModel.getPortfolioCategories()
+                                )
+                            },
+                            drawerElevation = 8.dp,
+                            bottomBar = {
+                                DefaultBottomAppBar(
+                                    onClickOrder = viewModel::order,
+                                    if (viewModel.category.value == CoinCategory.PORTFOLIO) rememberLazyListStatePortfolio else rememberLazyListStateMarket,
+                                    coroutineScope
+                                )
+                            },
+                            floatingActionButton = {
+                                CustomFloatingActionButton(coroutineScope, scaffoldState)
+                            },
+                            floatingActionButtonPosition = FabPosition.Center,
+                            isFloatingActionButtonDocked = true
+                        ) {
+                            Box(modifier = Modifier.padding(it)) {
+                                FadeInFadeOutAnimatedContent(
+                                    visible = loading,
+                                    initialAlpha = 0.7f
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .padding(bottom = 16.dp)
+                                    ) {
+                                        LoadingCoinShimmer(imageHeight = 150.dp)
+                                        CircularIndeterminateProgressBar(isDisplayed = loading)
+                                    }
                                 }
-                            }
 
-                            ExpandInFadeOutAnimatedContent(visible = !loading) {
-                                SwipeRefresh(state = rememberSwipeRefreshState(false),
-                                    onRefresh = { viewModel.refresh() }) {
-                                    if (viewModel.category.value == CoinCategory.MARKET) MarketList(
-                                        coinsOnScreen = coinsOnScreen,
-                                        tickers = tickers,
-                                        category = viewModel.category.value,
-                                        state = rememberLazyListStateMarket
-                                    )
-                                    else if (coinsOnScreen.isNotEmpty()) PortfolioList(
-                                        selectedCategory = viewModel.category.value,
-                                        coinsOnScreen = coinsOnScreen,
-                                        tickers = tickers,
-                                        itemListState = portfolioItemListState,
-                                        onDismissed = viewModel::deleteCoinFromPortfolio,
-                                        portfolioCategory = viewModel.getPortfolioCategories(),
-                                        onPortfolioCategoryChanged = viewModel::onPortfolioCategoryChanged,
-                                        selectedPortolioCategory = viewModel.selectedPortfolioCategory.value,
-                                        state = rememberLazyListStatePortfolio,
-                                        navController = findNavController()
-                                    )
+                                ExpandInFadeOutAnimatedContent(visible = !loading) {
+                                    SwipeRefresh(state = rememberSwipeRefreshState(false),
+                                        onRefresh = { viewModel.refresh() }) {
+                                        if (viewModel.category.value == CoinCategory.MARKET) MarketList(
+                                            coinsOnScreen = coinsOnScreen,
+                                            tickers = tickers,
+                                            category = viewModel.category.value,
+                                            state = rememberLazyListStateMarket
+                                        )
+                                        else if (coinsOnScreen.isNotEmpty()) PortfolioList(
+                                            selectedCategory = viewModel.category.value,
+                                            coinsOnScreen = coinsOnScreen,
+                                            tickers = tickers,
+                                            itemListState = portfolioItemListState,
+                                            onDismissed = viewModel::deleteCoinFromPortfolio,
+                                            portfolioCategory = viewModel.getPortfolioCategories(),
+                                            onPortfolioCategoryChanged = viewModel::onPortfolioCategoryChanged,
+                                            selectedPortolioCategory = viewModel.selectedPortfolioCategory.value,
+                                            state = rememberLazyListStatePortfolio,
+                                            navController = findNavController()
+                                        )
+                                    }
                                 }
+                                DefaultSnackbar(
+                                    snackbarHostState = scaffoldState.snackbarHostState,
+                                    onDismiss = {
+                                        scaffoldState.snackbarHostState.currentSnackbarData?.dismiss()
+                                    },
+                                    modifier = Modifier.align(Alignment.BottomCenter)
+                                )
                             }
-                            DefaultSnackbar(
-                                snackbarHostState = scaffoldState.snackbarHostState,
-                                onDismiss = {
-                                    scaffoldState.snackbarHostState.currentSnackbarData?.dismiss()
-                                },
-                                modifier = Modifier.align(Alignment.BottomCenter)
-                            )
                         }
                     }
                 }
