@@ -94,9 +94,8 @@ class CoinFeedViewModel @Inject constructor(
                         )
                     }
             }
-            val finalList = calcualteProfit(portfolioList)
-            coinsFromPortfolio.value = finalList
-            coinsOnScreen.value = finalList
+            coinsFromPortfolio.value = portfolioList
+            coinsOnScreen.value = portfolioList
         }
         loading.value = false
     }
@@ -114,6 +113,7 @@ class CoinFeedViewModel @Inject constructor(
     fun deleteCoinFromPortfolio(coin: Coin) {
         viewModelScope.launch {
             repository.deleteCoin(coin.entityId)
+            refresh()
         }
     }
 
@@ -167,18 +167,13 @@ class CoinFeedViewModel @Inject constructor(
     fun refresh() {
         selectedPortfolioCategory.value = ""
         getCoins()
-    }
-
-    private fun calcualteProfit(list: List<Coin>): List<Coin> {
-        list.forEach {
-            it.profit = it.currentPrice.minus(it.boughtPrice).times(it.boughtUnit)
-        }
-        return list
+        getTicker()
     }
 
     fun categoryChanged(category: CoinCategory) {
         this.category.value = category
         clearQueryText()
+        getTicker()
         when (category) {
             CoinCategory.MARKET -> getCoins()
             CoinCategory.PORTFOLIO -> getPortfolio()

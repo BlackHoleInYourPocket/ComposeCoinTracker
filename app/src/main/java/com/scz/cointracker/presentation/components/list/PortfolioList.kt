@@ -5,6 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -21,7 +22,9 @@ import com.scz.cointracker.presentation.ui.coinlist.CoinCategory
 import com.scz.cointracker.R
 import com.scz.cointracker.domain.model.Ticker
 import com.scz.cointracker.extensions.correctCurrentPrice
+import com.scz.cointracker.presentation.components.cards.ExpandableCard
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun PortfolioList(
     selectedCategory: CoinCategory,
@@ -35,7 +38,16 @@ fun PortfolioList(
     state: LazyListState,
     navController: NavController
 ) {
-    Column {
+    val duplicatedCoinsMap = coinsOnScreen.groupingBy { it.id }.eachCount().filter { it.value > 1 }
+    var uniqueCoins = coinsOnScreen
+    val duplicatedCoins = ArrayList<List<Coin>>()
+
+    duplicatedCoinsMap.forEach {
+        uniqueCoins = uniqueCoins.filter { x -> x.id != it.key }
+        duplicatedCoins.add(coinsOnScreen.filter { x -> x.id == it.key })
+    }
+
+    Column(modifier = Modifier.padding(bottom = 16.dp)) {
         Row {
             LazyRow(
                 modifier = Modifier
@@ -91,7 +103,20 @@ fun PortfolioList(
         Row {
             LazyColumn(state = state) {
                 items(
-                    coinsOnScreen,
+                    duplicatedCoins,
+                    { coin: List<Coin> -> coin.first().entityId }) { coins ->
+                    ExpandableCard(
+                        title = coins.first().symbol,
+                        coinsOnScreen = coins,
+                        navController = navController,
+                        tickers = tickers,
+                        selectedCategory = selectedCategory,
+                        itemListState = itemListState,
+                        onDismissed = onDismissed
+                    )
+                }
+                items(
+                    uniqueCoins,
                     { coin: Coin -> coin.entityId }) { coin ->
                     SwipeDismissItem(
                         content = {

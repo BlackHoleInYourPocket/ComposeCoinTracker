@@ -101,7 +101,9 @@ class CoinFeedFragment : Fragment() {
                     ) {
                         Box(modifier = Modifier.padding(it)) {
                             FadeInFadeOutAnimatedContent(visible = loading, initialAlpha = 0.7f) {
-                                Box(modifier = Modifier.fillMaxSize()) {
+                                Box(modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(bottom = 16.dp)) {
                                     LoadingCoinShimmer(imageHeight = 150.dp)
                                     CircularIndeterminateProgressBar(isDisplayed = loading)
                                 }

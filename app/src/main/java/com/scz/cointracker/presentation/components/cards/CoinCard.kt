@@ -84,7 +84,7 @@ fun CoinCard(
                         title = if (category.value == CoinCategory.MARKET.value) stringResource(id = R.string.feed_title8)
                         else stringResource(id = R.string.feed_title3),
                         value = if (category.value == CoinCategory.MARKET.value) marketCapRank.toString()
-                        else String.format("%.3f", profit),
+                        else String.format("%.3f", calculateProfit(coin)),
                         valueColor = if (category.value == CoinCategory.PORTFOLIO.value && profit > 0) Color.Green
                         else if (category.value == CoinCategory.PORTFOLIO.value) Color.Red else Color.Black
                     )
@@ -121,4 +121,9 @@ fun getImage(imageUrl: String): Bitmap? {
         url = imageUrl,
         defaultImage = R.drawable.ic_launcher_background
     ).value
+}
+
+fun calculateProfit(coin: Coin): Double {
+    coin.profit = coin.currentPrice.times(coin.boughtUnit) - coin.boughtPrice.times(coin.boughtUnit)
+    return coin.profit
 }
